@@ -4,7 +4,7 @@ export const metadata = {
 };
 import * as Sentry from "@sentry/nextjs";
 import { getCustomerSearchResults } from "@/drizzle/queries/customer.queries";
-import CustomerTable from "@/components/tables/CustomerTable";
+import CustomerTable from "@/components/tables/customers/CustomerTable";
 
 const CustomersPage = async ({
   searchParams,

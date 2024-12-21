@@ -57,6 +57,3 @@ return results;
 
 }
 
-export type TicketSearchResultsType = Awaited<
-  ReturnType<typeof getTicketSearchResults>
->;
