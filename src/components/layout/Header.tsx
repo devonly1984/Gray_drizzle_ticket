@@ -1,7 +1,9 @@
 import { Home, File, UsersRound,LogOut } from "lucide-react";
 import Link from 'next/link'
-import { NavButton, ModeToggle } from "@/components/shared";
+import { NavButton } from "../buttons";
+import { ModeToggle } from "../shared";
 import { LogoutLink } from "@kinde-oss/kinde-auth-nextjs/components";
+import NavMenu from '@/components/buttons/NavMenu'
 import { Button } from "@/components/ui/button";
 const Header = () => {
   return (
@@ -20,8 +22,28 @@ const Header = () => {
           </Link>
         </div>
         <div className="flex items-center">
+          {/**Tickets */}
           <NavButton icon={File} href="/tickets" label="Tickets" />
+
+          {/**Nav Menu starts */}
+          <NavMenu
+            icon={UsersRound}
+            label="Customers Menu"
+            choices={[
+              {
+                title: "Search Customers",
+                href: "/customers",
+              },
+              {
+                title: "New Customer",
+                href: "/customers/form",
+              },
+            ]}
+          />
+
+          {/**Customers */}
           <NavButton icon={UsersRound} href="/customers" label="Customers" />
+
           <ModeToggle />
           <Button
             asChild

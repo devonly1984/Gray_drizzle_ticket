@@ -1,8 +1,8 @@
 import { getCustomer } from "@/drizzle/queries/customer.queries"
 import { getTicket } from "@/drizzle/queries/ticket.queries";
-import BackButton from "@/components/shared/BackButton";
+import { BackButton } from "@/components/buttons";
 import * as Sentry from '@sentry/nextjs'
-import TicketForm from "@/components/forms/TicketForm";
+import {TicketForm} from "@/components/forms/";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { Users, init as kindeInit } from "@kinde/management-api-js";
 export const generateMetadata = async({searchParams}:{searchParams:Promise<{[key:string]:string|undefined}>})=>{

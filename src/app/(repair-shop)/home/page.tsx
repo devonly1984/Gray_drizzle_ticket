@@ -1,4 +1,5 @@
+import { redirect } from "next/navigation";
 const RepairShop = () => {
-  return <div>RepairShop</div>;
+  redirect("/tickets");
 };
 export default RepairShop;

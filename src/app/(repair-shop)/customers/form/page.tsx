@@ -1,7 +1,7 @@
 import { getCustomer } from "@/drizzle/queries/customer.queries"
-import BackButton from "@/components/shared/BackButton";
+import {BackButton} from "@/components/buttons";
 import * as Sentry from '@sentry/nextjs'
-import CustomerForm from "@/components/forms/CustomerForm";
+import {CustomerForm} from "@/components/forms/";
 
 export const generateMetadata = async({searchParams}:{searchParams:Promise<{[key:string]:string|undefined}>})=>{
   const {customerId} = await searchParams;
