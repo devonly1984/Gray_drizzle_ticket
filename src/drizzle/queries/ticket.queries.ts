@@ -14,12 +14,14 @@ export const getTicket = async(id:number)=>{
 export const getOpenTickets = async () => {
   const results = await db
     .select({
+      id: tickets.id,
       ticketDate: tickets.createdAt,
       title: tickets.title,
       firstName: customers.firstName,
       lastName: customers.lastName,
       email: customers.email,
       tech: tickets.tech,
+      completed: tickets.completed,
     })
     .from(tickets)
     .leftJoin(customers, eq(tickets.customerId, customers.id))
@@ -29,13 +31,14 @@ export const getOpenTickets = async () => {
 export const getTicketSearchResults = async(searchText:string)=>{
   const results = await db
     .select({
+      id: tickets.id,
       ticketDate: tickets.createdAt,
       title: tickets.title,
       firstName: customers.firstName,
       lastName: customers.lastName,
       email: customers.email,
       tech: tickets.tech,
-      completed: tickets.completed
+      completed: tickets.completed,
     })
     .from(tickets)
     .leftJoin(customers, eq(tickets.customerId, customers.id))
@@ -46,14 +49,16 @@ export const getTicketSearchResults = async(searchText:string)=>{
         ilike(customers.email, `%${searchText}%`),
         ilike(customers.phone, `%${searchText}%`),
         ilike(customers.city, `%${searchText}%`),
-
         ilike(customers.zip, `%${searchText}%`),
         sql`lower(concat(${customers.firstName}," ",${
           customers.lastName
-        })) LIKE ${`%${searchText.toLowerCase().replace(" ", "%")}%`}`,
+        })) LIKE ${`%${searchText.toLowerCase().replace(" ", "%")}%`}`
       )
-    ).orderBy(asc(tickets.createdAt))
-return results;
-
+    )
+    .orderBy(asc(tickets.createdAt));
+  return results;
 }
 
+export type TicketSearchResultsType = Awaited<
+  ReturnType<typeof getTicketSearchResults>
+>;

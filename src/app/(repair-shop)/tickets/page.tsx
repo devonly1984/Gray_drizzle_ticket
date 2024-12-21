@@ -1,4 +1,5 @@
 import TicketSearch from "@/components/shared/TicketSearch";
+import TicketsTable from "@/components/tables/tickets/TicketsTable";
 import {
   getTicketSearchResults,
   getOpenTickets,
@@ -9,23 +10,23 @@ const TicketsPage = async ({
 }: {
   searchParams: Promise<{ [key: string]: string | undefined }>;
 }) => {
-  let results;
-  const { searchText } = await searchParams;
+let results;
+   const { searchText } = await searchParams;
   if (!searchText) {
-   results = await getOpenTickets();
+  results = await getOpenTickets();
 
     return (
       <>
         <TicketSearch />
-        <p>{JSON.stringify(results)}</p>
+        {results.length ? <TicketsTable data={results} /> : null}
       </>
     );
   }
-   results = await getTicketSearchResults(searchText);
+    results = await getTicketSearchResults(searchText);
   return (
     <>
       <TicketSearch />
-      <p>{JSON.stringify(results)}</p>
+      {results.length ? <TicketsTable data={results} /> : null}
     </>
   );
 };
