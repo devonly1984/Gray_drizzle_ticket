@@ -18,7 +18,8 @@ let results;
     return (
       <>
         <TicketSearch />
-        {results.length ? <TicketsTable data={results} /> : null}
+        {results.length ? <TicketsTable data={results} /> : <p className="mt-4">No Open Tickets Found</p>
+        }
       </>
     );
   }
@@ -26,7 +27,11 @@ let results;
   return (
     <>
       <TicketSearch />
-      {results.length ? <TicketsTable data={results} /> : null}
+      {results.length ? (
+        <TicketsTable data={results} />
+      ) : (
+        <p className="mt-4">No Results Found</p>
+      )}
     </>
   );
 };

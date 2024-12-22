@@ -36,7 +36,7 @@ export const saveCustomer = actionClient
           .values({
             firstName: customer.firstName,
             lastName: customer.lastName,
-            email: customer.email,
+            email: customer.email.toLowerCase(),
             phone: customer.phone,
             address1: customer.address1,
             ...(customer.address2?.trim()
