@@ -1,6 +1,7 @@
 "use client";
 import { TicketSearchResultsType } from "@/drizzle/queries/ticket.queries";
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import usePolling from "@/hooks/usePolling";
 import {
   flexRender,
   getCoreRowModel,
@@ -20,7 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useRouter } from "next/navigation";
+import { useRouter,useSearchParams } from "next/navigation";
 import { CircleCheckIcon, CircleXIcon,ArrowUpDown,ArrowUp,ArrowDown } from "lucide-react";
 import {  ticketColumnHelper, ticketHeadersArray } from "./columnHeaders";
 import { Button } from "@/components/ui/button";
@@ -82,6 +83,8 @@ const columns = ticketHeadersArray.map(columnName=>{
 })
 const TicketsTable = ({data}:Props) => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
 const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 const [sorting, setSorting] = useState<SortingState>([
   {
@@ -89,18 +92,22 @@ const [sorting, setSorting] = useState<SortingState>([
     desc: false,
   },
 ]);
+const pageIndex = useMemo(() => {
+  const page = searchParams.get("page");
+  return page ? parseInt(page) - 1 : 0;
+}, [searchParams.get("page")]);
     const table = useReactTable({
       data,
       columns,
       state: {
         sorting,
         columnFilters,
-      },
-      initialState: {
         pagination: {
+          pageIndex,
           pageSize: 10,
         },
       },
+
       onColumnFiltersChange: setColumnFilters,
       onSortingChange: setSorting,
       getCoreRowModel: getCoreRowModel(),
@@ -109,6 +116,8 @@ const [sorting, setSorting] = useState<SortingState>([
       getFacetedUniqueValues: getFacetedUniqueValues(),
       getSortedRowModel: getSortedRowModel(),
     });
+    usePolling(10000, searchParams.get("searchText"));
+    
   return (
     <div className="mt-6 flex flex-col gap-4">
       <div className=" rounded-lg overflow-hidden border border-1">
@@ -173,7 +182,13 @@ const [sorting, setSorting] = useState<SortingState>([
         <div className="space-x-1">
           <Button
             variant="outline"
-            onClick={() => table.previousPage()}
+            onClick={() => {
+              const newIndex = table.getState().pagination.pageIndex - 1;
+              table.setPageIndex(newIndex);
+              const params = new URLSearchParams(searchParams.toString());
+              params.set("page", (newIndex + 1).toString());
+              router.replace(`?${params.toString()}`, { scroll: false });
+            }}
             disabled={!table.getCanPreviousPage()}
           >
             Previous
@@ -181,12 +196,21 @@ const [sorting, setSorting] = useState<SortingState>([
           <Button variant="outline" onClick={() => table.resetSorting()}>
             Reset Sorting
           </Button>
+          <Button variant="outline" onClick={() => router.refresh()}>
+            Refresh Data
+          </Button>
           <Button variant="outline" onClick={() => table.resetColumnFilters()}>
             Reset Filters
           </Button>
           <Button
             variant="outline"
-            onClick={() => table.nextPage()}
+            onClick={() => {
+              const newIndex = table.getState().pagination.pageIndex + 1;
+              table.setPageIndex(newIndex);
+              const params = new URLSearchParams(searchParams.toString());
+              params.set("page", (newIndex + 1).toString());
+              router.replace(`?${params.toString()}`, { scroll: false });
+            }}
             disabled={!table.getCanNextPage()}
           >
             Next
