@@ -2,6 +2,7 @@
 import { TicketSearchResultsType } from "@/drizzle/queries/ticket.queries";
 import { useState, useMemo } from "react";
 import usePolling from "@/hooks/usePolling";
+
 import {
   flexRender,
   getCoreRowModel,
@@ -23,7 +24,11 @@ import {
 } from "@/components/ui/table";
 import { useRouter,useSearchParams } from "next/navigation";
 import { CircleCheckIcon, CircleXIcon,ArrowUpDown,ArrowUp,ArrowDown } from "lucide-react";
-import {  ticketColumnHelper, ticketHeadersArray } from "./columnHeaders";
+import {
+  ticketColumnHelper,
+  ticketHeadersArray,
+  columnWidths,
+} from "./columnHeaders";
 import { Button } from "@/components/ui/button";
 import Filter from "../filters/Filter";
 type Props = {
@@ -47,7 +52,8 @@ const columns = ticketHeadersArray.map(columnName=>{
     },
     {
       id: columnName,
-      header: ({column: {getIsSorted, toggleSorting}})=>{
+      size: columnWidths[columnName as keyof typeof columnWidths] ?? undefined,
+      header: ({ column: { getIsSorted, toggleSorting } }) => {
         return (
           <Button
             variant="ghost"
@@ -63,9 +69,9 @@ const columns = ticketHeadersArray.map(columnName=>{
           </Button>
         );
       },
-      cell: ({getValue})=>{
+      cell: ({ getValue }) => {
         const value = getValue();
-        if (columnName==='completed') {
+        if (columnName === "completed") {
           return (
             <div className="grid place-content-center">
               {value === "OPEN" ? (
@@ -77,7 +83,7 @@ const columns = ticketHeadersArray.map(columnName=>{
           );
         }
         return value;
-      }
+      },
     }
   );
 })
@@ -92,10 +98,13 @@ const [sorting, setSorting] = useState<SortingState>([
     desc: false,
   },
 ]);
+
 const pageIndex = useMemo(() => {
-  const page = searchParams.get("page");
+  const page = searchParams.get('page');
   return page ? parseInt(page) - 1 : 0;
-}, [searchParams.get("page")]);
+}, [searchParams.get('page')]);
+usePolling(300000, searchParams.get('searchText'));
+
     const table = useReactTable({
       data,
       columns,
@@ -107,7 +116,6 @@ const pageIndex = useMemo(() => {
           pageSize: 10,
         },
       },
-
       onColumnFiltersChange: setColumnFilters,
       onSortingChange: setSorting,
       getCoreRowModel: getCoreRowModel(),
@@ -116,7 +124,6 @@ const pageIndex = useMemo(() => {
       getFacetedUniqueValues: getFacetedUniqueValues(),
       getSortedRowModel: getSortedRowModel(),
     });
-    usePolling(10000, searchParams.get("searchText"));
     
   return (
     <div className="mt-6 flex flex-col gap-4">
@@ -126,7 +133,11 @@ const pageIndex = useMemo(() => {
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className="bg-secondary p-1">
+                  <TableHead
+                    key={header.id}
+                    className="bg-secondary p-1"
+                    style={{ width: header.getSize() }}
+                  >
                     <div>
                       {header.isPlaceholder
                         ? null
@@ -137,7 +148,12 @@ const pageIndex = useMemo(() => {
                     </div>
                     {header.column.getCanFilter() ? (
                       <div className="grid place-content-center">
-                        <Filter column={header.column} />
+                        <Filter
+                          column={header.column}
+                          filteredRows={table.getFilteredRowModel().rows.map((row) =>
+                            row.getValue(header.column.id)
+                          )}
+                        />
                       </div>
                     ) : null}
                   </TableHead>
@@ -164,8 +180,8 @@ const pageIndex = useMemo(() => {
           </TableBody>
         </Table>
       </div>
-      <div className="flex justify-between items-center">
-        <div className="flex basis-1/3 items-center">
+      <div className="flex justify-between items-center flex-wrap gap-1 ">
+        <div>
           <p className="whitespace-nowrap font-bold">
             {`Page ${
               table.getState().pagination.pageIndex + 1
@@ -178,43 +194,51 @@ const pageIndex = useMemo(() => {
             }]`}
           </p>
         </div>
-
-        <div className="space-x-1">
-          <Button
-            variant="outline"
-            onClick={() => {
-              const newIndex = table.getState().pagination.pageIndex - 1;
-              table.setPageIndex(newIndex);
-              const params = new URLSearchParams(searchParams.toString());
-              params.set("page", (newIndex + 1).toString());
-              router.replace(`?${params.toString()}`, { scroll: false });
-            }}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <Button variant="outline" onClick={() => table.resetSorting()}>
-            Reset Sorting
-          </Button>
-          <Button variant="outline" onClick={() => router.refresh()}>
-            Refresh Data
-          </Button>
-          <Button variant="outline" onClick={() => table.resetColumnFilters()}>
-            Reset Filters
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => {
-              const newIndex = table.getState().pagination.pageIndex + 1;
-              table.setPageIndex(newIndex);
-              const params = new URLSearchParams(searchParams.toString());
-              params.set("page", (newIndex + 1).toString());
-              router.replace(`?${params.toString()}`, { scroll: false });
-            }}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
+        <div className="flex flex-row gap-1">
+          <div className="flex flex-row gap-1">
+            <Button
+              variant="outline"
+              onClick={() => {
+                const newIndex = table.getState().pagination.pageIndex - 1;
+                table.setPageIndex(newIndex);
+                const params = new URLSearchParams(searchParams.toString());
+                params.set("page", (newIndex + 1).toString());
+                router.replace(`?${params.toString()}`, { scroll: false });
+              }}
+              disabled={!table.getCanPreviousPage()}
+            >
+              Previous
+            </Button>
+            <Button variant="outline" onClick={() => table.resetSorting()}>
+              Reset Sorting
+            </Button>
+            <Button variant="outline" onClick={() => router.refresh()}>
+              Refresh Data
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => table.resetColumnFilters()}
+            >
+              Reset Filters
+            </Button>
+          </div>
+          <div className="flex flex-row gap-1">
+            <Button
+              variant="outline"
+              onClick={() => {
+                const newIndex = table.getState().pagination.pageIndex + 1;
+                table.setPageIndex(newIndex);
+                const params = new URLSearchParams(
+                  searchParams.get("page")?.toString()
+                );
+                params.set("page", (newIndex + 1).toString());
+                router.replace(`?${params.toString()}`, { scroll: false });
+              }}
+              disabled={!table.getCanNextPage()}
+            >
+              Next
+            </Button>
+          </div>
         </div>
       </div>
     </div>

@@ -13,4 +13,10 @@ export const ticketHeadersArray: Array<keyof RowType> = [
 ];
 export const ticketColumnHelper = createColumnHelper<RowType>();
 
-
+export const columnWidths = {
+  completed: 150,
+  ticketDate: 150,
+  title: 250,
+  tech: 225,
+  email: 225,
+};

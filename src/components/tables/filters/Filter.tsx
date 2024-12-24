@@ -2,14 +2,19 @@ import { Column } from "@tanstack/react-table";
 import DebouncedInput from "./DebouncedInput";
 type Props<T> = {
   column: Column<T, unknown>;
+  filteredRows: string[];
 };
-const Filter = <T,>({column}:Props<T>) => {
-  const columnFilterValue = column.getFilterValue();
-  const sortedUniqueVales = Array.from(column.getFacetedUniqueValues().keys()).sort()
+const Filter = <T,>({column,filteredRows}:Props<T>) => {
+
+    const columnFilterValue = column.getFilterValue();
+  const uniqueFilteredValues = new Set(filteredRows);
+
+  const sortedUniqueValues = Array.from(uniqueFilteredValues).sort();
+
   return (
     <>
       <datalist id={column.id + "list"}>
-        {sortedUniqueVales.map((value, i) => (
+        {sortedUniqueValues.map((value, i) => (
           <option value={value} key={`${i}-${column.id}`} />
         ))}
       </datalist>
@@ -17,9 +22,7 @@ const Filter = <T,>({column}:Props<T>) => {
         type="text"
         value={(columnFilterValue ?? "") as string}
         onChange={(value) => column.setFilterValue(value)}
-        placeholder={`Search... (${[...column.getFacetedUniqueValues()].filter(
-          (arr) => arr[0].length
-        )})`}
+        placeholder={`Search... (${uniqueFilteredValues.size})`}
         className="w-full border shadow rounded bg-card"
         list={column.id + "list"}
       />

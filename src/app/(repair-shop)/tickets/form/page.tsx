@@ -25,8 +25,9 @@ const TicketFormPage = async ({
     
     try {
       const { customerId, ticketId } = await searchParams;
+
       //Edit Customer
-      if (!customerId || !ticketId) {
+      if (!customerId && !ticketId) {
         return (
           <>
             <h2 className="text-2xl mb-2 ">
@@ -74,7 +75,7 @@ const TicketFormPage = async ({
                 description: user.email!,
               }))
             : [];
-            <TicketForm customer={customer} techs={techs!} />;
+            return <TicketForm customer={customer} techs={techs!} />;
         } else {
           return <TicketForm customer={customer} />;
         }
@@ -103,7 +104,7 @@ const TicketFormPage = async ({
                 description: user.email!,
               }))
             : [];
-            <TicketForm customer={customer} ticket={ticket} techs={techs!} />;
+            return <TicketForm customer={customer} ticket={ticket} techs={techs!} />;
         } else {
           const isEditable =
             user?.email?.toLowerCase() === ticket.tech.toLowerCase();
